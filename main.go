@@ -7,10 +7,12 @@ import (
 )
 
 const (
-	size = 8
-	popSize = 150
+	size = 15
+	popSize = 200
 	mutationProb = 3
 )
+
+var generation = 0
 
 type (
 	Board []int
@@ -32,6 +34,11 @@ func removeFromSlice(s Board, i int) Board {
 		}
 	}
 	return s[:len(s)-1]
+}
+
+func timeTrack(start time.Time) {
+	elapsed := time.Since(start)
+	fmt.Printf("%v-queens ready in %s\n", size, elapsed)
 }
 
 func getConflict(x1 int, y1 int, x2 int, y2 int) bool {
@@ -157,10 +164,12 @@ func visualize(board Board)  {
 		}
 		fmt.Print("\n")
 	}
+	fmt.Printf("generation: %v\n", generation)
 }
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
+	defer timeTrack(time.Now())
 
 	population := initPopulation()
 	population = populationCombSort(population)
@@ -169,10 +178,10 @@ func main() {
 	} else {
 		for true {
 			population = runCrossover(population)
+			generation++
 			population = populationCombSort(population)
 			if getFitness(population[0]) == 0 {
 				visualize(population[0])
-				fmt.Println(getFitness(population[0]))
 				break
 			}
 		}
