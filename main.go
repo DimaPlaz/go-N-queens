@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	size = 10
-	popSize = 5000
+	size = 8
+	popSize = 50
 )
 
 type (
@@ -33,11 +33,17 @@ func getConflict(x1 int, y1 int, x2 int, y2 int) bool {
 func getFitness(board Board) int {
 	// for size=8 --> (4, 0, 3, 5, 7, 1, 6, 2)
 	fitness := 0
+	firstConflict := true
 
 	for x1, y1 := range board{
+		firstConflict = true
 		for i := x1 + 1; i < size; i++{
 			if getConflict(x1, y1, i, board[i]) == true{
 				fitness++
+				if firstConflict == true{
+					fitness++
+					firstConflict = false
+				}
 				continue
 			}
 		}
@@ -98,7 +104,7 @@ func main()  {
 
 	population := initPopulation()
 	population = populationCombSort(population)
-	visualize(population[0])
-	fmt.Println(getFitness(population[0]))
+	visualize(population[size-1])
+	fmt.Println(getFitness(population[size-1]))
 
 }
