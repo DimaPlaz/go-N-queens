@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	size = 20
-	popSize = 300
+	size = 8
+	popSize = 150
 	mutationProb = 3
 )
 
@@ -165,7 +165,7 @@ func main() {
 	population := initPopulation()
 	population = populationCombSort(population)
 	if getFitness(population[0]) == 0 {
-		visualize(population[size-1])
+		visualize(population[0])
 	} else {
 		for true {
 			population = runCrossover(population)
