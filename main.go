@@ -7,10 +7,12 @@ import (
 )
 
 const (
-	size = 8
+	size = 15
 	popSize = 200
 	mutationProb = 3
 )
+
+var generation = 0
 
 type (
 	Board []int
@@ -22,6 +24,21 @@ func Abs(x int) int {
 		return -x
 	}
 	return x
+}
+
+func removeFromSlice(s Board, i int) Board {
+	for k, v := range s{
+		if v == i{
+			s[k], s[len(s)-1] = s[len(s)-1], s[k]
+			break
+		}
+	}
+	return s[:len(s)-1]
+}
+
+func timeTrack(start time.Time) {
+	elapsed := time.Since(start)
+	fmt.Printf("%v-queens ready in %s\n", size, elapsed)
 }
 
 func getConflict(x1 int, y1 int, x2 int, y2 int) bool {
@@ -79,18 +96,26 @@ func populationCombSort(population Population) Population {
 
 func crossover(parent1 Board, parent2 Board) Board {
 	descendant := Board{}
+	indexes := Board{}
+	storage := rand.Perm(size)
+	randInt := 0
 
 	for i := 0; i < size; i++ {
 		if parent1[i] == parent2[i] {
 			descendant = append(descendant, parent1[i])
+			storage = removeFromSlice(storage, parent1[i])
 		} else {
-			if rand.Float32() < 0.5 {
-				descendant = append(descendant, parent1[i])
-			} else {
-				descendant = append(descendant, parent2[i])
-			}
+			descendant = append(descendant, 0)
+			indexes = append(indexes, i)
 		}
 	}
+
+	for _, i := range indexes{
+		randInt = rand.Intn(len(storage))
+		descendant[i] = storage[randInt]
+		storage = removeFromSlice(storage, storage[randInt])
+	}
+
 	return descendant
 }
 
@@ -110,6 +135,7 @@ func mutation(board Board) Board {
 func runCrossover(population Population) Population {
 	for i := 1; i < popSize / 2; i++{
 		descendant := crossover(population[i-1], population[i])
+		//descendant := gemmation(population[i])
 		if mutationProb / 100 < rand.Float32() {
 			descendant = mutation(descendant)
 		}
@@ -138,22 +164,24 @@ func visualize(board Board)  {
 		}
 		fmt.Print("\n")
 	}
+	fmt.Printf("generation: %v\n", generation)
 }
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
+	defer timeTrack(time.Now())
 
 	population := initPopulation()
 	population = populationCombSort(population)
 	if getFitness(population[0]) == 0 {
-		visualize(population[size-1])
+		visualize(population[0])
 	} else {
 		for true {
 			population = runCrossover(population)
+			generation++
 			population = populationCombSort(population)
 			if getFitness(population[0]) == 0 {
 				visualize(population[0])
-				fmt.Println(getFitness(population[0]))
 				break
 			}
 		}
