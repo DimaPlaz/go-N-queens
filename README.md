@@ -1,3 +1,3 @@
 # go-N-queens
 
-#check dev branch
+# check dev branch
